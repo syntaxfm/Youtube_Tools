@@ -1,11 +1,10 @@
-import { defineConfig } from "drizzle-kit";
+import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
-	schema: "./src/data/schema.ts",
-	out: "./database",
-	driver: "better-sqlite",
+	schema: './src/data/schema.ts',
+	out: './database',
+	driver: 'better-sqlite',
 	dbCredentials: {
-		url: "./src/database/sqlite.db",
-	},
+		url: './db/sqlite.db'
+	}
 });
-  

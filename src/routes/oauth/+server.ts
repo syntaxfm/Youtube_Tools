@@ -8,7 +8,16 @@ const cookie_options = {
 	httpOnly: true,
 	path: '/',
 	sameSite: 'Lax',
-	maxAge: 60 * 60 * 24 * 365 // 1 year
+	// Set to 1 hour since that's typically how long access tokens last
+	maxAge: 60 * 60
+} as const;
+
+const refresh_token_cookie_options = {
+	httpOnly: true,
+	path: '/',
+	sameSite: 'Lax',
+	// Refresh tokens last much longer
+	maxAge: 60 * 60 * 24 * 365
 } as const;
 
 export async function GET({ url, cookies }) {
@@ -19,15 +28,33 @@ export async function GET({ url, cookies }) {
 			GOOGLE_CLIENT_SECRET,
 			PUBLIC_GOOGLE_REDIRECT
 		);
-		const { tokens } = await oauth2Client.getToken(code);
-		const token = tokens.access_token;
 
-		if (token) {
-			cookies.set('code', token, cookie_options);
+		// Set up the correct scopes
+		oauth2Client.setCredentials({
+			scope: ['https://www.googleapis.com/auth/youtube.readonly']
+		});
+
+		const { tokens } = await oauth2Client.getToken(code);
+		console.log('Received tokens:', {
+			hasAccessToken: !!tokens.access_token,
+			hasRefreshToken: !!tokens.refresh_token,
+			expiryDate: tokens.expiry_date
+		});
+
+		if (tokens.access_token) {
+			// Store access token in a cookie named 'access_token'
+			cookies.set('access_token', tokens.access_token, cookie_options);
+
+			// If we got a refresh token, store it for later
+			if (tokens.refresh_token) {
+				cookies.set('refresh_token', tokens.refresh_token, refresh_token_cookie_options);
+			}
+		} else {
+			throw error(500, 'No access token received');
 		}
 	} catch (e) {
-		console.log(e);
+		console.error('OAuth error:', e);
 		throw error(500, 'Login Failed');
 	}
-	redirect(302, '/tools');
+	throw redirect(302, '/tools');
 }
