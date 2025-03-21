@@ -12,18 +12,82 @@
     'PLLnpHn493BHFBCNpSFkW0K4bseDlP67c5',
     'PLLnpHn493BHH5MwR-ojd9eaeygK078AaQ',
     'PLLnpHn493BHHSnt6efgX0RR2bFhpVz84A',
+		'PLLnpHn493BHFaCVB41lKzhkZLpBVFmwi3',
+		'PLLnpHn493BHGx_nYeuNekwA-9-24suFx1'
   ];
+  
+  // const PLAYLIST_IDS = [
+  // ];
   
   let playlistIds = $state(PLAYLIST_IDS);
   let loading = $state(false);
   let results = $state([]);
   let error = $state('');
+  let sortConfig = $state({
+    column: 'totalViews',
+    direction: 'desc'
+  });
   
   // Initialize with input array
   function setPlaylistIds(idsArray) {
     if (Array.isArray(idsArray) && idsArray.length > 0) {
       playlistIds = [...idsArray];
     }
+  }
+  
+  // Sorting function
+  function sortResults(column) {
+    if (sortConfig.column === column) {
+      // If clicking the same column, toggle direction
+      sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      // New column, default to descending
+      sortConfig.column = column;
+      sortConfig.direction = 'desc';
+    }
+
+    // Sort the results array
+    results = [...results].sort((a, b) => {
+      if (a.isError && !b.isError) return 1;
+      if (!a.isError && b.isError) return -1;
+      if (a.isError && b.isError) return 0;
+
+      let aValue = a[column];
+      let bValue = b[column];
+
+      // Handle special cases
+      if (column === 'engagementRate') {
+        aValue = parseFloat(aValue);
+        bValue = parseFloat(bValue);
+      } else if (column.includes('Duration')) {
+        // Convert duration strings to seconds for comparison
+        aValue = durationToSeconds(aValue);
+        bValue = durationToSeconds(bValue);
+      }
+
+      const comparison = aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      return sortConfig.direction === 'asc' ? comparison : -comparison;
+    });
+  }
+
+  // Helper function to convert duration string to seconds
+  function durationToSeconds(duration) {
+    const parts = duration.split(' ');
+    let totalSeconds = 0;
+    
+    parts.forEach(part => {
+      if (part.endsWith('h')) totalSeconds += parseInt(part) * 3600;
+      if (part.endsWith('m')) totalSeconds += parseInt(part) * 60;
+      if (part.endsWith('s')) totalSeconds += parseInt(part);
+    });
+    
+    return totalSeconds;
+  }
+
+  // Get sort icon for column header
+  function getSortIcon(column) {
+    if (sortConfig.column !== column) return '↕️';
+    return sortConfig.direction === 'asc' ? '↑' : '↓';
   }
   
   // Batch analyze all playlists
@@ -52,6 +116,9 @@
       
       results = await response.json();
       
+      // Sort results by total views (descending), placing errors at the end
+      sortResults('totalViews');
+      
       // Handle any playlists with errors
       const errorCount = results.filter(r => r.isError).length;
       if (errorCount > 0) {
@@ -68,7 +135,7 @@
   // Format large numbers for display
   function formatNumber(num) {
     if (num === undefined || num === null) return '0';
-    return new Intl.NumberFormat().format(num);
+    return new Intl.NumberFormat().format(Math.round(num));
   }
   
   // Check if we have valid playlists
@@ -147,19 +214,58 @@
           <thead>
             <tr>
               <th>Playlist</th>
-              <th>Videos</th>
-              <th>Total Views</th>
-              <th>Avg Views</th>
-              <th>Engagement</th>
-              <th>Total Duration</th>
-              <th>Avg Duration</th>
+              <th class="sortable" on:click={() => sortResults('totalVideos')}>
+                Videos {getSortIcon('totalVideos')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('totalViews')}>
+                Total Views {getSortIcon('totalViews')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('avgViews')}>
+                Avg Views {getSortIcon('avgViews')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('medianViews')}>
+                Median Views {getSortIcon('medianViews')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('meanViewsWithSD')}>
+                Mean (SD Cutoff) {getSortIcon('meanViewsWithSD')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('topVideoViews')}>
+                Top Video Views {getSortIcon('topVideoViews')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('top3AvgViews')}>
+                Top 3 Avg Views {getSortIcon('top3AvgViews')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('engagementRate')}>
+                Engagement {getSortIcon('engagementRate')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('totalDuration')}>
+                Total Duration {getSortIcon('totalDuration')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('avgDuration')}>
+                Avg Duration {getSortIcon('avgDuration')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('medianDuration')}>
+                Median Duration {getSortIcon('medianDuration')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('totalLikes')}>
+                Total Likes {getSortIcon('totalLikes')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('avgLikes')}>
+                Avg Likes {getSortIcon('avgLikes')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('totalComments')}>
+                Total Comments {getSortIcon('totalComments')}
+              </th>
+              <th class="sortable" on:click={() => sortResults('avgComments')}>
+                Avg Comments {getSortIcon('avgComments')}
+              </th>
             </tr>
           </thead>
           <tbody>
             {#each results as result, index}
               {#if result.isError}
                 <tr class="error-row">
-                  <td colspan="7">
+                  <td colspan="16">
                     <div class="error-result">
                       <span class="error-icon">⚠️</span>
                       <span>Error analyzing playlist {result.playlistId}: {result.error}</span>
@@ -182,9 +288,18 @@
                   <td>{result.totalVideos}</td>
                   <td>{formatNumber(result.totalViews)}</td>
                   <td>{formatNumber(result.avgViews)}</td>
+                  <td>{formatNumber(result.medianViews)}</td>
+                  <td>{formatNumber(result.meanViewsWithSD)}</td>
+                  <td>{formatNumber(result.topVideoViews)}</td>
+                  <td>{formatNumber(result.top3AvgViews)}</td>
                   <td>{result.engagementRate}</td>
                   <td>{result.totalDuration}</td>
                   <td>{result.avgDuration}</td>
+                  <td>{result.medianDuration}</td>
+                  <td>{formatNumber(result.totalLikes)}</td>
+                  <td>{formatNumber(result.avgLikes)}</td>
+                  <td>{formatNumber(result.totalComments)}</td>
+                  <td>{formatNumber(result.avgComments)}</td>
                 </tr>
               {/if}
             {/each}
@@ -237,55 +352,6 @@
 </div>
 
 <style>
-  /* CSS Variables */
-  :global(:root) {
-    /* Colors */
-    --color-primary: #198754;
-    --color-primary-hover: #157347;
-    --color-primary-light: #d1e7dd;
-    --color-danger: #842029;
-    --color-danger-bg: #f8d7da;
-    --color-text: #333;
-    --color-text-light: #6c757d;
-    --color-text-dark: #212529;
-    --color-text-muted: #495057;
-    --color-border: #dee2e6;
-    --color-bg: #f8f9fa;
-    --color-white: #fff;
-    --color-gray-100: #f8f9fa;
-    --color-gray-200: #e9ecef;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    
-    /* Spacing */
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 0.75rem;
-    --spacing-lg: 1rem;
-    --spacing-xl: 1.5rem;
-    --spacing-2xl: 2rem;
-    
-    /* Border Radius */
-    --radius-sm: 0.25rem;
-    --radius-md: 0.5rem;
-    
-    /* Transitions */
-    --transition-fast: 0.15s ease-in-out;
-    --transition-normal: 0.2s ease;
-  }
-  
-  /* Base styles */
-  :global(body) {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.5;
-    color: var(--color-text);
-    background-color: var(--color-bg);
-    margin: 0;
-    padding: 0;
-  }
-  
   .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -419,6 +485,22 @@
   .table-container {
     overflow-x: auto;
     margin-bottom: var(--spacing-xl);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-200) transparent;
+  }
+  
+  .table-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .table-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .table-container::-webkit-scrollbar-thumb {
+    background-color: var(--color-gray-200);
+    border-radius: 4px;
   }
   
   table {
@@ -427,12 +509,14 @@
     background-color: var(--color-white);
     margin-bottom: var(--spacing-lg);
     box-shadow: var(--shadow-sm);
+    min-width: 1200px; /* Ensure minimum width for all columns */
   }
   
   th, td {
     padding: var(--spacing-md);
     border: 1px solid var(--color-border);
     text-align: left;
+    white-space: nowrap;
   }
   
   th {
@@ -440,6 +524,31 @@
     font-weight: 600;
     position: sticky;
     top: 0;
+    z-index: 1;
+  }
+  
+  /* Make the first column (playlist info) sticky */
+  th:first-child,
+  td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--color-white);
+    z-index: 2;
+  }
+  
+  th:first-child {
+    background-color: var(--color-gray-100);
+    z-index: 3;
+  }
+  
+  /* Add hover effect to rows */
+  tr:not(.error-row):hover {
+    background-color: var(--color-gray-100);
+  }
+  
+  /* Ensure playlist info stays visible on hover */
+  tr:not(.error-row):hover td:first-child {
+    background-color: var(--color-gray-100);
   }
   
   .top-performer {
@@ -556,5 +665,36 @@
     .big-number {
       font-size: 2rem;
     }
+  }
+  
+  .sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 1.5em;
+  }
+  
+  .sortable:hover {
+    background-color: var(--color-gray-200);
+  }
+  
+  .sortable::after {
+    content: attr(data-sort-icon);
+    position: absolute;
+    right: 0.5em;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  /* Ensure playlist info stays visible on hover */
+  tr:not(.error-row):hover td:first-child {
+    background-color: var(--color-gray-100);
+  }
+  
+  /* Keep the first column (playlist info) sticky and not sortable */
+  th:first-child {
+    cursor: default;
+    background-color: var(--color-gray-100);
+    z-index: 3;
   }
 </style>

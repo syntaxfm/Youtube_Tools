@@ -235,11 +235,20 @@ async function analyzePlaylist(playlistId, authToken) {
 	let totalDurationSeconds = 0;
 	let videoProcessedCount = 0;
 
+	// Arrays to store values for median calculations
+	const viewCounts = [];
+	const durationSeconds = [];
+
 	allVideoData.forEach((video) => {
 		if (video.statistics) {
-			totalViews += parseInt(video.statistics.viewCount || 0);
-			totalLikes += parseInt(video.statistics.likeCount || 0);
-			totalComments += parseInt(video.statistics.commentCount || 0);
+			const views = parseInt(video.statistics.viewCount || 0);
+			const likes = parseInt(video.statistics.likeCount || 0);
+			const comments = parseInt(video.statistics.commentCount || 0);
+
+			totalViews += views;
+			totalLikes += likes;
+			totalComments += comments;
+			viewCounts.push(views);
 			videoProcessedCount++;
 		}
 
@@ -254,41 +263,94 @@ async function analyzePlaylist(playlistId, authToken) {
 			const minutes = minuteMatch ? parseInt(minuteMatch[1]) : 0;
 			const seconds = secondMatch ? parseInt(secondMatch[1]) : 0;
 
-			totalDurationSeconds += hours * 3600 + minutes * 60 + seconds;
+			const videoDurationSeconds = hours * 3600 + minutes * 60 + seconds;
+			totalDurationSeconds += videoDurationSeconds;
+			durationSeconds.push(videoDurationSeconds);
 		}
 	});
 
-	// Calculate averages, handling empty playlists
+	// Sort arrays for median and top calculations
+	viewCounts.sort((a, b) => a - b);
+	durationSeconds.sort((a, b) => a - b);
+
+	// Calculate mean with standard deviation cutoff
+	function calculateMeanWithSDCutoff(values, sdMultiplier = 2) {
+		if (values.length === 0) return 0;
+
+		// Calculate mean
+		const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+
+		// Calculate standard deviation
+		const squaredDiffs = values.map((val) => Math.pow(val - mean, 2));
+		const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / values.length;
+		const sd = Math.sqrt(variance);
+
+		// Filter values within standard deviation range
+		const filteredValues = values.filter((val) => Math.abs(val - mean) <= sdMultiplier * sd);
+
+		// Calculate mean of filtered values
+		return filteredValues.reduce((sum, val) => sum + val, 0) / filteredValues.length;
+	}
+
+	// Calculate medians
+	const medianViews = viewCounts.length > 0 ? viewCounts[Math.floor(viewCounts.length / 2)] : 0;
+
+	const medianDurationSeconds =
+		durationSeconds.length > 0 ? durationSeconds[Math.floor(durationSeconds.length / 2)] : 0;
+
+	// Calculate top video views and top 3 average
+	const topVideoViews = viewCounts.length > 0 ? viewCounts[viewCounts.length - 1] : 0;
+	const top3AvgViews =
+		viewCounts.length >= 3
+			? viewCounts.slice(-3).reduce((sum, views) => sum + views, 0) / 3
+			: viewCounts.length > 0
+				? viewCounts.reduce((sum, views) => sum + views, 0) / viewCounts.length
+				: 0;
+
+	// Calculate mean with standard deviation cutoff
+	const meanViewsWithSD = calculateMeanWithSDCutoff(viewCounts);
+
+	// Calculate averages
 	const avgViews = videoProcessedCount > 0 ? totalViews / videoProcessedCount : 0;
 	const avgLikes = videoProcessedCount > 0 ? totalLikes / videoProcessedCount : 0;
 	const avgComments = videoProcessedCount > 0 ? totalComments / videoProcessedCount : 0;
 	const avgDurationSeconds =
-		videoProcessedCount > 0 ? totalDurationSeconds / videoProcessedCount : 0;
+		durationSeconds.length > 0
+			? durationSeconds.reduce((sum, duration) => sum + duration, 0) / durationSeconds.length
+			: 0;
 
-	// Format time for display
-	const formatTime = (seconds) => {
+	// Format durations
+	const formatDuration = (seconds) => {
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
-		const secs = Math.floor(seconds % 60);
-		return `${hours}h ${minutes}m ${secs}s`;
+		const remainingSeconds = Math.floor(seconds % 60);
+
+		const parts = [];
+		if (hours > 0) parts.push(`${hours}h`);
+		if (minutes > 0) parts.push(`${minutes}m`);
+		if (remainingSeconds > 0) parts.push(`${remainingSeconds}s`);
+
+		return parts.join(' ') || '0s';
 	};
 
-	// Create and return the result
 	return {
 		playlistId,
 		playlistTitle,
 		thumbnailUrl,
 		totalVideos,
 		totalViews,
-		avgViews: Math.round(avgViews),
+		avgViews,
+		medianViews,
+		meanViewsWithSD,
+		topVideoViews,
+		top3AvgViews,
 		totalLikes,
-		avgLikes: Math.round(avgLikes),
+		avgLikes,
 		totalComments,
-		avgComments: Math.round(avgComments),
-		totalDuration: formatTime(totalDurationSeconds),
-		avgDuration: formatTime(avgDurationSeconds),
-		engagementRate:
-			totalViews > 0 ? (((totalLikes + totalComments) / totalViews) * 100).toFixed(2) + '%' : '0%',
-		processedVideoCount: videoProcessedCount
+		avgComments,
+		totalDuration: formatDuration(totalDurationSeconds),
+		avgDuration: formatDuration(avgDurationSeconds),
+		medianDuration: formatDuration(medianDurationSeconds),
+		engagementRate: `${(((totalLikes + totalComments) / totalViews) * 100).toFixed(2)}%`
 	};
 }

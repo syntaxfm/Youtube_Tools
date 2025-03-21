@@ -1,0 +1,49 @@
+/* CSS Variables */
+:root {
+	/* Colors */
+	--color-primary: #198754;
+	--color-primary-hover: #157347;
+	--color-primary-light: #d1e7dd;
+	--color-danger: #842029;
+	--color-danger-bg: #f8d7da;
+	--color-text: #333;
+	--color-text-light: #6c757d;
+	--color-text-dark: #212529;
+	--color-text-muted: #495057;
+	--color-border: #dee2e6;
+	--color-bg: #f8f9fa;
+	--color-white: #fff;
+	--color-gray-100: #f8f9fa;
+	--color-gray-200: #e9ecef;
+
+	/* Shadows */
+	--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+	--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+	/* Spacing */
+	--spacing-xs: 0.25rem;
+	--spacing-sm: 0.5rem;
+	--spacing-md: 0.75rem;
+	--spacing-lg: 1rem;
+	--spacing-xl: 1.5rem;
+	--spacing-2xl: 2rem;
+
+	/* Border Radius */
+	--radius-sm: 0.25rem;
+	--radius-md: 0.5rem;
+
+	/* Transitions */
+	--transition-fast: 0.15s ease-in-out;
+	--transition-normal: 0.2s ease;
+}
+
+/* Base styles */
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+		sans-serif;
+	line-height: 1.5;
+	color: var(--color-text);
+	background-color: var(--color-bg);
+	margin: 0;
+	padding: 0;
+}

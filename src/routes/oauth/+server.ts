@@ -49,6 +49,14 @@ export async function GET({ url, cookies }) {
 			if (tokens.refresh_token) {
 				cookies.set('refresh_token', tokens.refresh_token, refresh_token_cookie_options);
 			}
+
+			// Set the code cookie to indicate logged in state
+			cookies.set('code', 'true', {
+				httpOnly: true,
+				path: '/',
+				sameSite: 'Lax',
+				maxAge: 60 * 60 * 24 * 365 // 1 year
+			});
 		} else {
 			throw error(500, 'No access token received');
 		}
