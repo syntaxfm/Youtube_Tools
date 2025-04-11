@@ -1,23 +1,27 @@
 <script>
   // App state with proper Svelte 5 runes
-  const PLAYLIST_IDS = [
-    'PLLnpHn493BHEEFzqQUKPqkb5kCjODDnCB',
-    'PLLnpHn493BHGTMfQW80muoajR35mHZApM',
-    'PLLnpHn493BHHHfwltu5BXXq7l9TFhw2kL',
-    'PLLnpHn493BHFl_WfpbSJwZIEFyngkj_J_',
-    'PLLnpHn493BHGBiEhXz-S7ni8swvP7ROWD',
-    'PLLnpHn493BHFgYr9_pv60nDnsNFv7NIBR',
-    'PLLnpHn493BHEzYBmj0NXkXOmDaNrajO31',
-    'PLLnpHn493BHHtQvz4Y2SumwGzgjikMjNy',
-    'PLLnpHn493BHFBCNpSFkW0K4bseDlP67c5',
-    'PLLnpHn493BHH5MwR-ojd9eaeygK078AaQ',
-    'PLLnpHn493BHHSnt6efgX0RR2bFhpVz84A',
-		'PLLnpHn493BHFaCVB41lKzhkZLpBVFmwi3',
-		'PLLnpHn493BHGx_nYeuNekwA-9-24suFx1'
-  ];
-  
   // const PLAYLIST_IDS = [
+  //   'PLLnpHn493BHEEFzqQUKPqkb5kCjODDnCB',
+  //   'PLLnpHn493BHGTMfQW80muoajR35mHZApM',
+  //   'PLLnpHn493BHHHfwltu5BXXq7l9TFhw2kL',
+  //   'PLLnpHn493BHFl_WfpbSJwZIEFyngkj_J_',
+  //   'PLLnpHn493BHGBiEhXz-S7ni8swvP7ROWD',
+  //   'PLLnpHn493BHFgYr9_pv60nDnsNFv7NIBR',
+  //   'PLLnpHn493BHEzYBmj0NXkXOmDaNrajO31',
+  //   'PLLnpHn493BHHtQvz4Y2SumwGzgjikMjNy',
+  //   'PLLnpHn493BHFBCNpSFkW0K4bseDlP67c5',
+  //   'PLLnpHn493BHH5MwR-ojd9eaeygK078AaQ',
+  //   'PLLnpHn493BHHSnt6efgX0RR2bFhpVz84A',
+	// 	'PLLnpHn493BHFaCVB41lKzhkZLpBVFmwi3',
+	// 	'PLLnpHn493BHGx_nYeuNekwA-9-24suFx1'
   // ];
+  
+  const PLAYLIST_IDS = [
+		'PLArHFG1pACBoKbgjcveEHDNmbBKYv19l3',
+		'PLRkn2QTxcJf64P4uRCQcR_Z5Vj2Xb0x3X',
+		'PLRsapyZqDs1o2_cfJNIxQzb-X1-mpYbdA',
+		'PL0F93dv3eRtkH4Unslskx-JPfDEqbwjbD',
+  ];
   
   let playlistIds = $state(PLAYLIST_IDS);
   let loading = $state(false);
@@ -141,560 +145,445 @@
   // Check if we have valid playlists
   let hasPlaylists = $derived(playlistIds.length > 0);
   let canAnalyze = $derived(hasPlaylists && !loading);
+
+  // Helper function to update big number data-value
+  function updateBigNumberValue(element, value) {
+    element.setAttribute('data-value', value);
+  }
 </script>
 
 <div class="container">
-  <h1>YouTube Playlist Analytics</h1>
+  <div class="cyber-overlay"></div>
+  <div class="matrix-rain"></div>
   
-  {#if hasPlaylists}
-    <div class="playlists-section">
-      <h2>Analyzing {playlistIds.length} Playlists</h2>
-      <div class="playlist-ids">
-        {#each playlistIds as id}
-          <div class="playlist-badge">{id}</div>
-        {/each}
-      </div>
-      
-      <button
-        on:click={analyzeAllPlaylists}
-        disabled={!canAnalyze}
-        class="btn btn-analyze"
-      >
-        {loading ? 'Analyzing...' : 'Analyze All Playlists'}
-      </button>
-    </div>
-  {:else}
-    <div class="waiting-message">
-      <p>Waiting for playlist IDs to be provided...</p>
-    </div>
-  {/if}
-  
-  {#if error}
-    <div class="error-message">{error}</div>
-  {/if}
-  
-  {#if results.length > 0}
-    <div class="results-section">
-      <h2>Results (Sorted by Performance)</h2>
-      
-      <!-- Performance Overview -->
-      <div class="performance-overview">
-        <div class="overview-card">
-          <h3>Top Performer</h3>
-          <p class="big-number">{results[0].totalViews.toLocaleString()}</p>
-          <p>Total Views</p>
-          <p class="playlist-title">{results[0].playlistTitle}</p>
+  <div class="content">
+    <h1 class="neon">YouTube Playlist Analytics</h1>
+    
+    {#if hasPlaylists}
+      <div class="playlists-section glass-effect">
+        <h2>Analyzing {playlistIds.length} Playlists</h2>
+        <div class="playlist-ids">
+          {#each playlistIds as id}
+            <div class="playlist-badge">{id}</div>
+          {/each}
         </div>
         
-        <div class="overview-card">
-          <h3>Total Views</h3>
-          <p class="big-number">
-            {results
+        <button
+          on:click={analyzeAllPlaylists}
+          disabled={!canAnalyze}
+          class="btn-analyze"
+        >
+          {loading ? 'Analyzing...' : 'Analyze All Playlists'}
+        </button>
+      </div>
+    {:else}
+      <div class="waiting-message glass-effect">
+        <p>Waiting for playlist IDs to be provided...</p>
+      </div>
+    {/if}
+    
+    {#if error}
+      <div class="error-message glass-effect">
+        <div class="error-content cyber-border">
+          <span class="error-icon pulse">⚠️</span>
+          {error}
+        </div>
+      </div>
+    {/if}
+    
+    {#if results.length > 0}
+      <div class="results-section">
+        <h2 class="cyber-text neon">Results Overview</h2>
+        
+        <!-- Performance Overview -->
+        <div class="performance-overview">
+          <div class="overview-card glass-effect cyber-border">
+            <h3 class="cyber-text">Top Performer</h3>
+            <p class="big-number glow" data-value={results[0].totalViews.toLocaleString()}>{results[0].totalViews.toLocaleString()}</p>
+            <p class="cyber-text">Total Views</p>
+            <p class="playlist-title neon">{results[0].playlistTitle}</p>
+          </div>
+          
+          <div class="overview-card glass-effect cyber-border">
+            <h3 class="cyber-text">Total Views</h3>
+            <p class="big-number glow" data-value={results
               .filter(r => !r.isError)
               .reduce((sum, r) => sum + r.totalViews, 0)
-              .toLocaleString()}
-          </p>
-          <p>Across all playlists</p>
-        </div>
-        
-        <div class="overview-card">
-          <h3>Total Videos</h3>
-          <p class="big-number">
-            {results
+              .toLocaleString()}>
+              {results
+                .filter(r => !r.isError)
+                .reduce((sum, r) => sum + r.totalViews, 0)
+                .toLocaleString()}
+            </p>
+            <p class="cyber-text">Across all playlists</p>
+          </div>
+          
+          <div class="overview-card glass-effect cyber-border">
+            <h3 class="cyber-text">Total Videos</h3>
+            <p class="big-number glow" data-value={results
               .filter(r => !r.isError)
               .reduce((sum, r) => sum + r.totalVideos, 0)
-              .toLocaleString()}
-          </p>
-          <p>Across all playlists</p>
+              .toLocaleString()}>
+              {results
+                .filter(r => !r.isError)
+                .reduce((sum, r) => sum + r.totalVideos, 0)
+                .toLocaleString()}
+            </p>
+            <p class="cyber-text">Across all playlists</p>
+          </div>
+        </div>
+        
+        <div class="table-container glass-effect">
+          <table>
+            <thead>
+              <tr>
+                <th class="cyber-text">Playlist</th>
+                <th class="sortable cyber-text" on:click={() => sortResults('totalVideos')}>
+                  Videos {getSortIcon('totalVideos')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('totalViews')}>
+                  Total Views {getSortIcon('totalViews')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('avgViews')}>
+                  Avg Views {getSortIcon('avgViews')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('medianViews')}>
+                  Median Views {getSortIcon('medianViews')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('meanViewsWithSD')}>
+                  Mean (SD Cutoff) {getSortIcon('meanViewsWithSD')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('topVideoViews')}>
+                  Top Video Views {getSortIcon('topVideoViews')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('top3AvgViews')}>
+                  Top 3 Avg Views {getSortIcon('top3AvgViews')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('engagementRate')}>
+                  Engagement {getSortIcon('engagementRate')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('totalDuration')}>
+                  Total Duration {getSortIcon('totalDuration')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('avgDuration')}>
+                  Avg Duration {getSortIcon('avgDuration')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('medianDuration')}>
+                  Median Duration {getSortIcon('medianDuration')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('totalLikes')}>
+                  Total Likes {getSortIcon('totalLikes')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('avgLikes')}>
+                  Avg Likes {getSortIcon('avgLikes')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('totalComments')}>
+                  Total Comments {getSortIcon('totalComments')}
+                </th>
+                <th class="sortable cyber-text" on:click={() => sortResults('avgComments')}>
+                  Avg Comments {getSortIcon('avgComments')}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each results as result, index}
+                {#if result.isError}
+                  <tr class="error-row">
+                    <td colspan="16">
+                      <div class="error-result cyber-border">
+                        <span class="error-icon pulse">⚠️</span>
+                        <span>Error analyzing playlist {result.playlistId}: {result.error}</span>
+                      </div>
+                    </td>
+                  </tr>
+                {:else}
+                  <tr class={index === 0 ? "top-performer feature-card" : "feature-card"}>
+                    <td>
+                      <div class="playlist-row-info">
+                        {#if result.thumbnailUrl}
+                          <img src={result.thumbnailUrl} alt="Thumbnail" class="playlist-thumb morph" />
+                        {/if}
+                        <div>
+                          <div class="cyber-text">{result.playlistTitle}</div>
+                          <div class="playlist-id-small neon">{result.playlistId}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{result.totalVideos}</td>
+                    <td>{formatNumber(result.totalViews)}</td>
+                    <td>{formatNumber(result.avgViews)}</td>
+                    <td>{formatNumber(result.medianViews)}</td>
+                    <td>{formatNumber(result.meanViewsWithSD)}</td>
+                    <td>{formatNumber(result.topVideoViews)}</td>
+                    <td>{formatNumber(result.top3AvgViews)}</td>
+                    <td>{result.engagementRate}</td>
+                    <td>{result.totalDuration}</td>
+                    <td>{result.avgDuration}</td>
+                    <td>{result.medianDuration}</td>
+                    <td>{formatNumber(result.totalLikes)}</td>
+                    <td>{formatNumber(result.avgLikes)}</td>
+                    <td>{formatNumber(result.totalComments)}</td>
+                    <td>{formatNumber(result.avgComments)}</td>
+                  </tr>
+                {/if}
+              {/each}
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="playlist-cards">
+          {#each results.filter(r => !r.isError) as result, index}
+            <div class={`playlist-card glass-effect ${index === 0 ? "top-performer-card cyber-border" : "cyber-border"} feature-card`}>
+              <div class="card-header">
+                {#if result.thumbnailUrl}
+                  <img src={result.thumbnailUrl} alt="Thumbnail" class="card-thumbnail morph" />
+                {/if}
+                <h3 class="cyber-text neon">{result.playlistTitle}</h3>
+              </div>
+              <p class="playlist-id-small cyber-text">{result.playlistId}</p>
+              
+              <div class="metrics-grid">
+                <div class="metric cyber-border pulse">
+                  <p class="metric-label cyber-text">Total Videos:</p>
+                  <p class="metric-value glow">{result.totalVideos}</p>
+                </div>
+                <div class="metric cyber-border pulse">
+                  <p class="metric-label cyber-text">Total Views:</p>
+                  <p class="metric-value glow">{formatNumber(result.totalViews)}</p>
+                </div>
+                <div class="metric cyber-border pulse">
+                  <p class="metric-label cyber-text">Avg Views:</p>
+                  <p class="metric-value glow">{formatNumber(result.avgViews)}</p>
+                </div>
+                <div class="metric cyber-border pulse">
+                  <p class="metric-label cyber-text">Engagement Rate:</p>
+                  <p class="metric-value glow">{result.engagementRate}</p>
+                </div>
+                <div class="metric cyber-border pulse">
+                  <p class="metric-label cyber-text">Total Duration:</p>
+                  <p class="metric-value glow">{result.totalDuration}</p>
+                </div>
+                <div class="metric cyber-border pulse">
+                  <p class="metric-label cyber-text">Avg Duration:</p>
+                  <p class="metric-value glow">{result.avgDuration}</p>
+                </div>
+              </div>
+            </div>
+          {/each}
         </div>
       </div>
-      
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Playlist</th>
-              <th class="sortable" on:click={() => sortResults('totalVideos')}>
-                Videos {getSortIcon('totalVideos')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('totalViews')}>
-                Total Views {getSortIcon('totalViews')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('avgViews')}>
-                Avg Views {getSortIcon('avgViews')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('medianViews')}>
-                Median Views {getSortIcon('medianViews')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('meanViewsWithSD')}>
-                Mean (SD Cutoff) {getSortIcon('meanViewsWithSD')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('topVideoViews')}>
-                Top Video Views {getSortIcon('topVideoViews')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('top3AvgViews')}>
-                Top 3 Avg Views {getSortIcon('top3AvgViews')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('engagementRate')}>
-                Engagement {getSortIcon('engagementRate')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('totalDuration')}>
-                Total Duration {getSortIcon('totalDuration')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('avgDuration')}>
-                Avg Duration {getSortIcon('avgDuration')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('medianDuration')}>
-                Median Duration {getSortIcon('medianDuration')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('totalLikes')}>
-                Total Likes {getSortIcon('totalLikes')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('avgLikes')}>
-                Avg Likes {getSortIcon('avgLikes')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('totalComments')}>
-                Total Comments {getSortIcon('totalComments')}
-              </th>
-              <th class="sortable" on:click={() => sortResults('avgComments')}>
-                Avg Comments {getSortIcon('avgComments')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each results as result, index}
-              {#if result.isError}
-                <tr class="error-row">
-                  <td colspan="16">
-                    <div class="error-result">
-                      <span class="error-icon">⚠️</span>
-                      <span>Error analyzing playlist {result.playlistId}: {result.error}</span>
-                    </div>
-                  </td>
-                </tr>
-              {:else}
-                <tr class={index === 0 ? "top-performer" : ""}>
-                  <td>
-                    <div class="playlist-row-info">
-                      {#if result.thumbnailUrl}
-                        <img src={result.thumbnailUrl} alt="Thumbnail" class="playlist-thumb" />
-                      {/if}
-                      <div>
-                        {result.playlistTitle}
-                        <div class="playlist-id-small">{result.playlistId}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{result.totalVideos}</td>
-                  <td>{formatNumber(result.totalViews)}</td>
-                  <td>{formatNumber(result.avgViews)}</td>
-                  <td>{formatNumber(result.medianViews)}</td>
-                  <td>{formatNumber(result.meanViewsWithSD)}</td>
-                  <td>{formatNumber(result.topVideoViews)}</td>
-                  <td>{formatNumber(result.top3AvgViews)}</td>
-                  <td>{result.engagementRate}</td>
-                  <td>{result.totalDuration}</td>
-                  <td>{result.avgDuration}</td>
-                  <td>{result.medianDuration}</td>
-                  <td>{formatNumber(result.totalLikes)}</td>
-                  <td>{formatNumber(result.avgLikes)}</td>
-                  <td>{formatNumber(result.totalComments)}</td>
-                  <td>{formatNumber(result.avgComments)}</td>
-                </tr>
-              {/if}
-            {/each}
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="playlist-cards">
-        {#each results.filter(r => !r.isError) as result, index}
-          <div class={`playlist-card ${index === 0 ? "top-performer-card" : ""}`}>
-            <div class="card-header">
-              {#if result.thumbnailUrl}
-                <img src={result.thumbnailUrl} alt="Thumbnail" class="card-thumbnail" />
-              {/if}
-              <h3>{result.playlistTitle}</h3>
-            </div>
-            <p class="playlist-id-small">{result.playlistId}</p>
-            
-            <div class="metrics-grid">
-              <div class="metric">
-                <p class="metric-label">Total Videos:</p>
-                <p class="metric-value">{result.totalVideos}</p>
-              </div>
-              <div class="metric">
-                <p class="metric-label">Total Views:</p>
-                <p class="metric-value">{formatNumber(result.totalViews)}</p>
-              </div>
-              <div class="metric">
-                <p class="metric-label">Avg Views:</p>
-                <p class="metric-value">{formatNumber(result.avgViews)}</p>
-              </div>
-              <div class="metric">
-                <p class="metric-label">Engagement Rate:</p>
-                <p class="metric-value">{result.engagementRate}</p>
-              </div>
-              <div class="metric">
-                <p class="metric-label">Total Duration:</p>
-                <p class="metric-value">{result.totalDuration}</p>
-              </div>
-              <div class="metric">
-                <p class="metric-label">Avg Duration:</p>
-                <p class="metric-value">{result.avgDuration}</p>
-              </div>
-            </div>
-          </div>
-        {/each}
-      </div>
-    </div>
-  {/if}
+    {/if}
+  </div>
 </div>
 
 <style>
+  /* Base styles */
+  :root {
+    --primary: #ff00ff;
+    --secondary: #00ffff;
+    --accent: #ffff00;
+    --bg: #000000;
+    --glass-bg: rgba(0, 0, 0, 0.8);
+  }
+
+  /* Optimized animations */
+  @keyframes cyber-scan {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100%); }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  /* Container and overlay */
   .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--spacing-xl);
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+    overflow-x: hidden;
+    perspective: 1000px;
   }
-  
+
+  .cyber-overlay {
+    position: fixed;
+    inset: 0;
+    background: 
+      linear-gradient(45deg, transparent 48%, rgba(255, 0, 255, 0.1) 50%, transparent 52%),
+      linear-gradient(-45deg, transparent 48%, rgba(0, 255, 255, 0.1) 50%, transparent 52%);
+    background-size: 4px 4px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.3;
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    padding: 2rem;
+  }
+
+  /* Matrix rain effect (optimized) */
+  .matrix-rain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Title styles */
   h1 {
-    font-size: 2rem;
-    margin-bottom: var(--spacing-xl);
-    color: var(--color-text-dark);
+    font-family: "Press Start 2P", system-ui;
+    font-size: 3rem;
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 2rem;
+    text-shadow: 
+      0 0 10px var(--primary),
+      0 0 20px var(--secondary);
+    animation: glow-pulse 2s ease-in-out infinite;
   }
-  
-  h2 {
-    font-size: 1.5rem;
-    margin-bottom: var(--spacing-lg);
-    color: var(--color-text-dark);
+
+  /* Card and section styles */
+  .glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
   }
-  
-  h3 {
-    font-size: 1.25rem;
-    margin-bottom: var(--spacing-sm);
-    color: var(--color-text-dark);
-  }
-  
-  /* Playlists section */
-  .playlists-section {
-    margin-bottom: var(--spacing-2xl);
-  }
-  
-  .playlist-ids {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-xl);
-  }
-  
+
   .playlist-badge {
-    background-color: var(--color-gray-200);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-sm);
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: white;
     font-family: monospace;
-    font-size: 0.875rem;
-  }
-  
-  /* Waiting message */
-  .waiting-message {
-    padding: var(--spacing-lg);
-    background-color: var(--color-gray-200);
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--spacing-xl);
-    text-align: center;
-  }
-  
-  /* Button styles */
-  .btn {
+    margin: 0.5rem;
     display: inline-block;
-    font-weight: 500;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    cursor: pointer;
-    padding: var(--spacing-sm) var(--spacing-lg);
-    font-size: 1rem;
-    border-radius: var(--radius-sm);
-    border: none;
-    transition: background-color var(--transition-fast);
+    animation: float 3s ease-in-out infinite;
   }
-  
-  .btn:disabled {
-    opacity: 0.65;
+
+  /* Button styles */
+  .btn-analyze {
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    border: none;
+    padding: 1rem 2rem;
+    color: white;
+    font-family: "Press Start 2P", system-ui;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    margin-top: 1rem;
+  }
+
+  .btn-analyze:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 0 10px var(--primary),
+      0 0 20px var(--secondary);
+  }
+
+  .btn-analyze:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
   }
-  
-  .btn-analyze {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    width: 100%;
-    margin-bottom: var(--spacing-xl);
-    padding: var(--spacing-md);
-  }
-  
-  .btn-analyze:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-  }
-  
-  /* Error message */
-  .error-message {
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-xl);
-    background-color: var(--color-danger-bg);
-    color: var(--color-danger);
-    border-radius: var(--radius-sm);
-  }
-  
-  /* Performance overview */
-  .performance-overview {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-2xl);
-  }
-  
-  .overview-card {
-    background-color: var(--color-white);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    text-align: center;
-  }
-  
-  .big-number {
-    font-size: 2.5rem;
-    font-weight: 600;
-    margin: var(--spacing-sm) 0;
-    color: var(--color-primary);
-  }
-  
-  .playlist-title {
-    font-weight: 500;
-    margin-top: var(--spacing-sm);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  /* Results section */
-  .results-section {
-    margin-top: var(--spacing-2xl);
-  }
-  
-  .table-container {
-    overflow-x: auto;
-    margin-bottom: var(--spacing-xl);
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-gray-200) transparent;
-  }
-  
-  .table-container::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .table-container::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .table-container::-webkit-scrollbar-thumb {
-    background-color: var(--color-gray-200);
-    border-radius: 4px;
-  }
-  
+
+  /* Table styles */
   table {
     width: 100%;
-    border-collapse: collapse;
-    background-color: var(--color-white);
-    margin-bottom: var(--spacing-lg);
-    box-shadow: var(--shadow-sm);
-    min-width: 1200px; /* Ensure minimum width for all columns */
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 2rem;
   }
-  
+
   th, td {
-    padding: var(--spacing-md);
-    border: 1px solid var(--color-border);
+    padding: 1rem;
     text-align: left;
-    white-space: nowrap;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
-  
+
   th {
-    background-color: var(--color-gray-100);
-    font-weight: 600;
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    background: var(--glass-bg);
+    color: var(--secondary);
+    font-family: "Press Start 2P", system-ui;
+    font-size: 0.8rem;
   }
-  
-  /* Make the first column (playlist info) sticky */
-  th:first-child,
-  td:first-child {
-    position: sticky;
-    left: 0;
-    background-color: var(--color-white);
-    z-index: 2;
+
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.1);
   }
-  
-  th:first-child {
-    background-color: var(--color-gray-100);
-    z-index: 3;
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
   }
-  
-  /* Add hover effect to rows */
-  tr:not(.error-row):hover {
-    background-color: var(--color-gray-100);
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
   }
-  
-  /* Ensure playlist info stays visible on hover */
-  tr:not(.error-row):hover td:first-child {
-    background-color: var(--color-gray-100);
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--primary), var(--secondary));
+    border-radius: 5px;
   }
-  
-  .top-performer {
-    background-color: var(--color-primary-light);
+
+  /* Utility classes */
+  .neon {
+    text-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor;
   }
-  
-  .error-row {
-    background-color: var(--color-danger-bg);
+
+  /* Error message */
+  .error-message {
+    background: rgba(255, 0, 0, 0.2);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+    color: #ff0000;
+    animation: glow-pulse 2s ease-in-out infinite;
   }
-  
-  .error-result {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    color: var(--color-danger);
-  }
-  
-  .error-icon {
-    font-size: 1.25rem;
-  }
-  
-  .playlist-row-info {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-  }
-  
-  .playlist-thumb {
-    width: 60px;
-    height: 45px;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
-  }
-  
-  .playlist-id-small {
-    font-family: monospace;
-    font-size: 0.75rem;
-    color: var(--color-text-light);
-  }
-  
-  /* Playlist cards */
-  .playlist-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-  }
-  
-  .playlist-card {
-    padding: var(--spacing-lg);
-    background-color: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-  }
-  
-  .playlist-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-  
-  .top-performer-card {
-    border-color: var(--color-primary);
-    border-width: 2px;
-  }
-  
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-  }
-  
-  .card-thumbnail {
-    width: 80px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
-  }
-  
+
+  /* Performance metrics */
   .metrics-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
   }
-  
+
   .metric {
-    margin-bottom: var(--spacing-xs);
+    background: var(--glass-bg);
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
   }
-  
-  .metric-label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin: 0;
-    color: var(--color-text-muted);
+
+  .metric:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 0 10px var(--primary),
+      0 0 20px var(--secondary);
   }
-  
+
   .metric-value {
-    font-size: 1.25rem;
-    margin: var(--spacing-xs) 0 0 0;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .playlist-cards {
-      grid-template-columns: 1fr;
-    }
-    
-    .performance-overview {
-      grid-template-columns: 1fr;
-    }
-    
-    .big-number {
-      font-size: 2rem;
-    }
-  }
-  
-  .sortable {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: 1.5em;
-  }
-  
-  .sortable:hover {
-    background-color: var(--color-gray-200);
-  }
-  
-  .sortable::after {
-    content: attr(data-sort-icon);
-    position: absolute;
-    right: 0.5em;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  
-  /* Ensure playlist info stays visible on hover */
-  tr:not(.error-row):hover td:first-child {
-    background-color: var(--color-gray-100);
-  }
-  
-  /* Keep the first column (playlist info) sticky and not sortable */
-  th:first-child {
-    cursor: default;
-    background-color: var(--color-gray-100);
-    z-index: 3;
+    font-size: 1.5rem;
+    color: var(--secondary);
+    margin-top: 0.5rem;
   }
 </style>
+
+<svelte:head>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</svelte:head>
